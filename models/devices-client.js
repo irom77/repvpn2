@@ -1,5 +1,5 @@
 /**
- * Created by IrekRomaniuk on 6/24/2015.
+ * Created by IrekRomaniuk on 4/24/2015.
  */
 var config = require('./config');
 var MongoClient = require('mongodb').MongoClient;
