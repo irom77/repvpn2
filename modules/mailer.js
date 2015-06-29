@@ -12,13 +12,13 @@ var server  = email.server.connect({
 });
 
 // send the message and get a callback with an error or details of the message that was sent
-module.exports.send = function () {
+module.exports.send = function (emailTo, emailText, emailSubject ) {
     server.send({
-        text: config.emailText,
+        text: emailText,
         from: config.emailFrom,
-        to: config.emailTo,
+        to: emailTo,
         //cc:      "else <else@your-email.com>",
-        subject: config.emailSubject
+        subject: emailSubject
     }, function (err, message) { /*console.log(err || message); */
     });
 };
