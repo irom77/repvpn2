@@ -1,10 +1,10 @@
 /**
  * Created by IrekRomaniuk on 4/24/2015.
  */
-var config = require('./config');
+var config = require('./../config/config');
 var MongoClient = require('mongodb').MongoClient;
 
-module.exports = function(callback) {
+module.exports = function (callback) {
     MongoClient.connect(config.dbadmin_uri, function (err, db) {
         if (err) throw err;
         // console.log('Successfully connected');
