@@ -10,7 +10,6 @@ var exec = require('ssh-exec');
 module.exports = function scheduleJob(command, cron, target, time, host) {
     var buffers = [];
     var job = new cron(time, function(){
-        //console.log(command);
         stream = process.stdin
             .pipe(exec(command, host));
         stream.on('data', function (buffer) {

@@ -7,11 +7,11 @@
  ShowCert
  #cpca_client lscert [-stat Pending|Valid|Revoked|Expired|Renewed] [-kind SIC|IKE|User|LDAP] [-ser ser]
  #cpca_client lscert -stat Valid -kind IKE | grep -A 2 a0008DA73586C
- Run:
- [linux-example]$node repcert.js
+ Run, Test, crontab and git:
+ [linux-example]$node repcert.js [linux-example]$node repcert.js test
  ./dev-test/dev-repcert.js used for development
- crontab
  0 7 1 * * /usr/bin/node /home/irek/repvpn/repcert.js >> /home/irek/repvpn/repcert.log > /dev/null 2>&1
+ git commit -a "Comment"; git push -u origin master
      */
 var moment = require('moment');
 var config = require('./config/config');
@@ -20,6 +20,7 @@ var emailText;
 var scheduler = require('./modules/scheduler');
 var MyROBO = [];
 var Days = 30;
+var test = process.argv[2];
 
 require('./models/devices-client')(function callback(err, Hosts) {
     for (host in Hosts) {
@@ -30,12 +31,10 @@ require('./models/devices-client')(function callback(err, Hosts) {
             MyROBO.push({hostname:Hosts[host].hostname, exp_cert:Hosts[host].exp_cert});
         }
     }
-    //return(MyROBO);
-    email.send(config.emailTo, emailText, config.emailSubject);reset()
+    if (!test) email.send(config.emailTo, emailText, config.emailSubject);reset()
 });
 
 function reset() {
-    // console.log(MyROBO);
     var CronJob = require('cron').CronJob;
     for (robo in MyROBO) {
         var resetIke = config.resetIke + MyROBO[robo].hostname + ' -CA=' + config.CA;
@@ -43,9 +42,10 @@ function reset() {
         //for testing '0 */1 * * * *' every minute or 'moment().add(5, 'minutes').toDate()'
         time = (moment(MyROBO[robo].exp_cert).subtract(7,'d').toDate() < moment().toDate())
             ?  moment().add(1,'d').toDate(): moment(MyROBO[robo].exp_cert).subtract(7,'d').toDate();
-        timetest = moment().add(5, 'seconds').toDate();
-        //console.log(moment().toDate(), MyROBO[robo].hostname, MyROBO[robo].exp_cert, time);
-        scheduler(config.envCMA+resetIke+';'+lscertIKE+';', CronJob, MyROBO[robo].hostname, time, config.user_host);
+        time = moment(time).hours(7).minutes(0).toDate();
+        if (test=='5') time = moment().add(5, 'seconds').toDate();
+        if (test) console.log(moment().toDate(), MyROBO[robo].hostname, MyROBO[robo].exp_cert, time);
+        else scheduler(config.envCMA+resetIke+';'+lscertIKE+';', CronJob, MyROBO[robo].hostname, time, config.user_host);
     }
 }
 
